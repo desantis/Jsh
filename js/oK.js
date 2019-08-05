@@ -930,7 +930,7 @@ function setIO(symbol, slot, func) {
 	verbs[symbol][slot] = func;
 }
 
-this.version = "0.1.1";
+this.version = "0.1.2";
 this.parse = parse;
 this.format = format;
 this.run = run;

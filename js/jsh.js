@@ -37,7 +37,42 @@ function printForm(x) {
 	return stok(format(x));
 }
 
-var env = baseEnv();
+var kajax = function(a) {
+	var url      = tojs(a[0]);
+	var verb     = tojs(a[1]);
+	var callback = a[2];
+	try {
+		var xhr = new XMLHttpRequest();
+		xhr.open(verb, url);
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState != 4) { return; }
+			if (xhr.status != 200) {
+				showError("HTTP "+xhr.status+" from "+verb+":"+url);
+				return;
+			}
+			var result = tok(JSON.parse(xhr.responseText));
+			call(callback, k(3, [result]), env);
+		}
+		xhr.send();
+	}
+	catch(e) {
+		console.log(e);
+		showError("Malformed ajax request: "+verb+":"+url);
+	}
+}
+
+verbs["ajax" ] = [null,null,null,null,null,null,kajax,null];
+
+
+function extendedEnv() {
+	var env = baseEnv();
+	trampoline(env, "ajax"   , ["x", "y", "z"], kajax);
+	env.put(ks("tr"), true, k(0, 30));
+	return env;
+}
+
+
+var env    = extendedEnv();
 var entries = [];
 var entryIndex = 0;
 var partial = "";
